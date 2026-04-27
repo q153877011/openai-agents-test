@@ -119,7 +119,7 @@ export default function CodeViewer() {
           </L>
           <L n={27}>
             <span className={styles.indent} />
-            <Va t="model" /><Op t="=" /><Va t="ai_gate_model" /><Op t="," />
+            <Va t="model" /><Op t="=" /><Va t="llm_model" /><Op t="," />
           </L>
           <L n={28}><Op t=")" /></L>
         </div>

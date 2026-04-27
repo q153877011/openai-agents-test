@@ -21,7 +21,7 @@ from openai.types.responses import ResponseTextDeltaEvent
 from agents import Agent, Runner, function_tool
 
 # 私有模块：不映射为路由
-from ._model import ai_gate_model
+from ._model import llm_model
 
 
 # ========== Tool 1: 获取天气 ==========
@@ -71,7 +71,7 @@ agent = Agent(
     name="Assistant",
     instructions="You are a helpful assistant. Use the available tools to answer questions.",
     tools=[get_weather, get_clothing_advice, translate_text, text_statistics],
-    model=ai_gate_model,
+    model=llm_model,
 )
 
 
