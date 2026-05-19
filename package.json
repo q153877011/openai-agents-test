@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:agents": "PATH=$PWD/.venv/bin:$PATH edgeone pages dev",
     "build": "tsc && vite build",
     "preview": "vite preview"
   },
