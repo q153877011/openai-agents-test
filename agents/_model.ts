@@ -20,6 +20,6 @@ export function createLlmModel(env: RuntimeEnv) {
   // OpenAIChatCompletionsModel(client, model) — positional arguments
   return new OpenAIChatCompletionsModel(
     llmClient,
-    env.AI_GATE_MODEL ?? "hy3-preview",
+    env.AI_GATEWAY_MODEL ?? "@Pages/hy3-preview",
   );
 }
