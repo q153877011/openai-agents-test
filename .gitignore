@@ -28,3 +28,6 @@ Thumbs.db
 __pycache__/
 *.py[cod]
 *.egg-info/
+
+# Local backups
+agents-backup/

@@ -6,12 +6,10 @@ const token = (cls: string) =>
   function Token({ t }: { t: string }) { return <span className={cls}>{t}</span>; };
 
 const Cmt = token(styles.cmt);
-const Dec = token(styles.dec);
 const Kw  = token(styles.kw);
 const Fn  = token(styles.fn);
 const Ty  = token(styles.ty);
 const Str = token(styles.str);
-const Doc = token(styles.doc);
 const Op  = token(styles.op);
 const Va  = token(styles.va);
 
@@ -30,7 +28,7 @@ export default function CodeViewer() {
       <div className={styles.header}>
         <div className={styles.headerLeft}>
           <span className={styles.fileIcon}>⬡</span>
-          <span className={styles.filename}>agent<span className={styles.sep}></span></span>
+          <span className={styles.filename}>index.ts<span className={styles.sep}></span></span>
         </div>
         <span className={styles.badge}>READ ONLY</span>
       </div>
@@ -41,97 +39,174 @@ export default function CodeViewer() {
         <div className={styles.scanline} aria-hidden />
 
         <div className={styles.code}>
-          <L n={1}><Cmt t="# ========== Tool 1: Get Weather ==========" /></L>
-          <L n={2}><Dec t="@function_tool" /></L>
-          <L n={3}>
-            <Kw t="def " /><Fn t="get_weather" /><Op t="(" />
-            <Va t="city" /><Op t=": " /><Ty t="Annotated" /><Op t="[" />
-            <Ty t="str" /><Op t=", " /><Str t='"The city to get weather for"' />
-            <Op t="]) -&gt; " /><Ty t="str" /><Op t=":" />
+          <L n={1}>
+            <Kw t="import " /><Op t="{ " /><Ty t="Agent" /><Op t=", " /><Fn t="tool" /><Op t=" } " />
+            <Kw t="from " /><Str t="'@openai/agents'" /><Op t=";" />
           </L>
-          <L n={4}>
+          <L n={2}>
+            <Kw t="import " /><Op t="{ " /><Va t="z" /><Op t=" } " />
+            <Kw t="from " /><Str t="'zod'" /><Op t=";" />
+          </L>
+          <L n={3} />
+          <L n={4}><Cmt t="// ========== Tool 1: Get Weather ==========" /></L>
+          <L n={5}>
+            <Kw t="const " /><Va t="getWeather" /><Op t=" = " /><Fn t="tool" /><Op t="({" />
+          </L>
+          <L n={6}>
             <span className={styles.indent} />
-            <Doc t='"""Get the current weather for a specified city."""' />
+            <Va t="name" /><Op t=": " /><Str t="'get_weather'" /><Op t="," />
           </L>
-          <L n={5} />
-          <L n={6}><Cmt t="# ========== Tool 2: Get Clothing Advice ==========" /></L>
-          <L n={7}><Dec t="@function_tool" /></L>
+          <L n={7}>
+            <span className={styles.indent} />
+            <Va t="description" /><Op t=": " /><Str t="'Get the current weather for a specified city.'" /><Op t="," />
+          </L>
           <L n={8}>
-            <Kw t="def " /><Fn t="get_clothing_advice" /><Op t="(" />
-            <Va t="weather" /><Op t=": " /><Ty t="Annotated" /><Op t="[" />
-            <Ty t="str" /><Op t=", " /><Str t='"The weather description"' />
-            <Op t="]) -&gt; " /><Ty t="str" /><Op t=":" />
+            <span className={styles.indent} />
+            <Va t="parameters" /><Op t=": " /><Va t="z" /><Op t="." /><Fn t="object" /><Op t="({" />
           </L>
           <L n={9}>
+            <span className={styles.indent} /><span className={styles.indent} />
+            <Va t="city" /><Op t=": " /><Va t="z" /><Op t="." /><Fn t="string" /><Op t="()." /><Fn t="describe" /><Op t="(" /><Str t="'The city to get weather for'" /><Op t=")," />
+          </L>
+          <L n={10}>
             <span className={styles.indent} />
-            <Doc t='"""Give clothing advice based on weather conditions."""' />
+            <Op t="})," />
           </L>
-          <L n={10} />
-          <L n={11} />
-          <L n={12}><Cmt t="# ========== Tool 3: Translate Text ==========" /></L>
-          <L n={13}><Dec t="@function_tool" /></L>
-          <L n={14}>
-            <Kw t="def " /><Fn t="translate_text" /><Op t="(" />
-            <Va t="text" /><Op t=": " /><Ty t="Annotated" /><Op t="[" />
-            <Ty t="str" /><Op t=", " /><Str t='"The text to translate"' />
-            <Op t="], " />
-            <Va t="target_language" /><Op t=": " /><Ty t="Annotated" /><Op t="[" />
-            <Ty t="str" /><Op t=", " /><Str t='"Target language code, e.g. en, ja, fr"' />
-            <Op t="]) -&gt; " /><Ty t="str" /><Op t=":" />
+          <L n={11}>
+            <span className={styles.indent} />
+            <Va t="execute" /><Op t=": " /><Kw t="async " /><Op t="({ " /><Va t="city" /><Op t=" }) => { ... }," />
           </L>
+          <L n={12}><Op t="});" /></L>
+          <L n={13} />
+          <L n={14}><Cmt t="// ========== Tool 2: Get Clothing Advice ==========" /></L>
           <L n={15}>
-            <span className={styles.indent} />
-            <Doc t='"""Translate text to the specified language."""' />
+            <Kw t="const " /><Va t="getClothingAdvice" /><Op t=" = " /><Fn t="tool" /><Op t="({" />
           </L>
-          <L n={16} />
-          <L n={17}><Cmt t="# ========== Tool 4: Text Statistics ==========" /></L>
-          <L n={18}><Dec t="@function_tool" /></L>
+          <L n={16}>
+            <span className={styles.indent} />
+            <Va t="name" /><Op t=": " /><Str t="'get_clothing_advice'" /><Op t="," />
+          </L>
+          <L n={17}>
+            <span className={styles.indent} />
+            <Va t="description" /><Op t=": " /><Str t="'Give clothing advice based on weather.'" /><Op t="," />
+          </L>
+          <L n={18}>
+            <span className={styles.indent} />
+            <Va t="parameters" /><Op t=": " /><Va t="z" /><Op t="." /><Fn t="object" /><Op t="({" />
+          </L>
           <L n={19}>
-            <Kw t="def " /><Fn t="text_statistics" /><Op t="(" />
-            <Va t="text" /><Op t=": " /><Ty t="Annotated" /><Op t="[" />
-            <Ty t="str" /><Op t=", " /><Str t='"The text to analyze"' />
-            <Op t="]) -&gt; " /><Ty t="str" /><Op t=":" />
+            <span className={styles.indent} /><span className={styles.indent} />
+            <Va t="weather" /><Op t=": " /><Va t="z" /><Op t="." /><Fn t="string" /><Op t="()." /><Fn t="describe" /><Op t="(" /><Str t="'The weather description'" /><Op t=")," />
           </L>
           <L n={20}>
             <span className={styles.indent} />
-            <Doc t='"""Analyze text and return statistics like character count and word count."""' />
+            <Op t="})," />
           </L>
-          <L n={21} />
-          <L n={22}><Cmt t="# ========== Agent ==========" /></L>
-          <L n={23}>
-            <Va t="agent" /><Op t=" = " /><Ty t="Agent" /><Op t="(" />
-          </L>
-          <L n={24}>
+          <L n={21}>
             <span className={styles.indent} />
-            <Va t="name" /><Op t="=" /><Str t='"Assistant"' /><Op t="," />
+            <Va t="execute" /><Op t=": " /><Kw t="async " /><Op t="({ " /><Va t="weather" /><Op t=" }) => { ... }," />
           </L>
+          <L n={22}><Op t="});" /></L>
+          <L n={23} />
+          <L n={24}><Cmt t="// ========== Tool 3: Translate Text ==========" /></L>
           <L n={25}>
-            <span className={styles.indent} />
-            <Va t="instructions" /><Op t="=" />
-            <Str t='"You are a helpful assistant. Use the available tools to answer questions."' />
-            <Op t="," />
+            <Kw t="const " /><Va t="translateText" /><Op t=" = " /><Fn t="tool" /><Op t="({" />
           </L>
           <L n={26}>
             <span className={styles.indent} />
-            <Va t="tools" /><Op t="=[" />
-            <Fn t="get_weather" /><Op t=", " />
-            <Fn t="get_clothing_advice" /><Op t=", " />
-            <Fn t="translate_text" /><Op t=", " />
-            <Fn t="text_statistics" />
-            <Op t="]," />
+            <Va t="name" /><Op t=": " /><Str t="'translate_text'" /><Op t="," />
           </L>
           <L n={27}>
             <span className={styles.indent} />
-            <Va t="model" /><Op t="=" /><Va t="llm_model" /><Op t="," />
+            <Va t="description" /><Op t=": " /><Str t="'Translate text to the specified language.'" /><Op t="," />
           </L>
-          <L n={28}><Op t=")" /></L>
+          <L n={28}>
+            <span className={styles.indent} />
+            <Va t="parameters" /><Op t=": " /><Va t="z" /><Op t="." /><Fn t="object" /><Op t="({" />
+          </L>
+          <L n={29}>
+            <span className={styles.indent} /><span className={styles.indent} />
+            <Va t="text" /><Op t=": " /><Va t="z" /><Op t="." /><Fn t="string" /><Op t="()." /><Fn t="describe" /><Op t="(" /><Str t="'The text to translate'" /><Op t=")," />
+          </L>
+          <L n={30}>
+            <span className={styles.indent} /><span className={styles.indent} />
+            <Va t="target_language" /><Op t=": " /><Va t="z" /><Op t="." /><Fn t="string" /><Op t="()." /><Fn t="describe" /><Op t="(" /><Str t="'Target language code'" /><Op t=")," />
+          </L>
+          <L n={31}>
+            <span className={styles.indent} />
+            <Op t="})," />
+          </L>
+          <L n={32}>
+            <span className={styles.indent} />
+            <Va t="execute" /><Op t=": " /><Kw t="async " /><Op t="({ " /><Va t="text" /><Op t=", " /><Va t="target_language" /><Op t=" }) => { ... }," />
+          </L>
+          <L n={33}><Op t="});" /></L>
+          <L n={34} />
+          <L n={35}><Cmt t="// ========== Tool 4: Text Statistics ==========" /></L>
+          <L n={36}>
+            <Kw t="const " /><Va t="textStatistics" /><Op t=" = " /><Fn t="tool" /><Op t="({" />
+          </L>
+          <L n={37}>
+            <span className={styles.indent} />
+            <Va t="name" /><Op t=": " /><Str t="'text_statistics'" /><Op t="," />
+          </L>
+          <L n={38}>
+            <span className={styles.indent} />
+            <Va t="description" /><Op t=": " /><Str t="'Analyze text and return statistics.'" /><Op t="," />
+          </L>
+          <L n={39}>
+            <span className={styles.indent} />
+            <Va t="parameters" /><Op t=": " /><Va t="z" /><Op t="." /><Fn t="object" /><Op t="({" />
+          </L>
+          <L n={40}>
+            <span className={styles.indent} /><span className={styles.indent} />
+            <Va t="text" /><Op t=": " /><Va t="z" /><Op t="." /><Fn t="string" /><Op t="()." /><Fn t="describe" /><Op t="(" /><Str t="'The text to analyze'" /><Op t=")," />
+          </L>
+          <L n={41}>
+            <span className={styles.indent} />
+            <Op t="})," />
+          </L>
+          <L n={42}>
+            <span className={styles.indent} />
+            <Va t="execute" /><Op t=": " /><Kw t="async " /><Op t="({ " /><Va t="text" /><Op t=" }) => { ... }," />
+          </L>
+          <L n={43}><Op t="});" /></L>
+          <L n={44} />
+          <L n={45}><Cmt t="// ========== Agent ==========" /></L>
+          <L n={46}>
+            <Kw t="const " /><Va t="agent" /><Op t=" = " /><Kw t="new " /><Ty t="Agent" /><Op t="({" />
+          </L>
+          <L n={47}>
+            <span className={styles.indent} />
+            <Va t="name" /><Op t=": " /><Str t="'Assistant'" /><Op t="," />
+          </L>
+          <L n={48}>
+            <span className={styles.indent} />
+            <Va t="instructions" /><Op t=": " />
+            <Str t="'You are a helpful assistant. Use the available tools to answer questions.'" />
+            <Op t="," />
+          </L>
+          <L n={49}>
+            <span className={styles.indent} />
+            <Va t="tools" /><Op t=": [" />
+            <Va t="getWeather" /><Op t=", " />
+            <Va t="getClothingAdvice" /><Op t=", " />
+            <Va t="translateText" /><Op t=", " />
+            <Va t="textStatistics" />
+            <Op t="]," />
+          </L>
+          <L n={50}>
+            <span className={styles.indent} />
+            <Va t="model" /><Op t=": " /><Fn t="createLlmModel" /><Op t="(env)," />
+          </L>
+          <L n={51}><Op t="});" /></L>
         </div>
       </div>
 
       {/* ── Footer tag ── */}
       <div className={styles.footer}>
         <span className={styles.footerDot} />
-        <span>OpenAI Agents SDK · Agent Template</span>
+        <span>OpenAI Agents SDK · TypeScript</span>
       </div>
     </div>
   );
