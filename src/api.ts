@@ -26,6 +26,9 @@ export interface StreamCallbacks {
 
 /** 获取当前 conversation 的历史消息，用于刷新页面后恢复聊天窗口。 */
 export async function fetchConversationHistory(conversationId: string): Promise<Message[]> {
+  const startTime = Date.now();
+  console.log(`[History] 请求开始时间: ${new Date(startTime).toLocaleString()}`);
+
   for (let attempt = 0; attempt < 3; attempt++) {
     try {
       const res = await fetch(API.history, {
@@ -43,14 +46,29 @@ export async function fetchConversationHistory(conversationId: string): Promise<
         continue;
       }
 
-      if (!res.ok) return [];
+      if (!res.ok) {
+        const endTime = Date.now();
+        console.log(`[History] 请求结束时间: ${new Date(endTime).toLocaleString()}`);
+        console.log(`[History] 总耗时: ${endTime - startTime}ms`);
+        return [];
+      }
 
       const data = await res.json().catch(() => null) as { messages?: Message[] } | null;
+      const endTime = Date.now();
+      console.log(`[History] 请求结束时间: ${new Date(endTime).toLocaleString()}`);
+      console.log(`[History] 总耗时: ${endTime - startTime}ms`);
       return Array.isArray(data?.messages) ? data.messages : [];
     } catch {
+      const endTime = Date.now();
+      console.log(`[History] 请求结束时间: ${new Date(endTime).toLocaleString()}`);
+      console.log(`[History] 总耗时: ${endTime - startTime}ms (异常终止)`);
       return [];
     }
   }
+
+  const endTime = Date.now();
+  console.log(`[History] 请求结束时间: ${new Date(endTime).toLocaleString()}`);
+  console.log(`[History] 总耗时: ${endTime - startTime}ms (重试耗尽)`);
   return [];
 }
 

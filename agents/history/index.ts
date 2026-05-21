@@ -59,21 +59,35 @@ function contentToText(content: unknown): string {
 // ── Handler ─────────────────────────────────────────────────
 
 export async function onRequest(context: any) {
+  const requestStartTime = Date.now();
+  console.log(`[History Server] 请求开始时间: ${new Date(requestStartTime).toISOString()}`);
+
   const conversationId: string = context.conversation_id ?? '';
   const store = context.store ?? null;
 
   if (!store || !conversationId) {
+    const endTime = Date.now();
+    console.log(`[History Server] 请求结束时间: ${new Date(endTime).toISOString()}`);
+    console.log(`[History Server] 总耗时: ${endTime - requestStartTime}ms (无 store 或 conversationId)`);
     return new Response(JSON.stringify({ messages: [] }), {
       status: 200,
       headers: { 'Content-Type': 'application/json; charset=UTF-8' },
     });
   }
 
+  // 记录 store.getMessages 开始时间
+  const storeStartTime = Date.now();
+  console.log(`[History Server] store.getMessages 开始时间: ${new Date(storeStartTime).toISOString()}`);
+
   const history: MemoryMessage[] = await store.getMessages({
     conversationId,
     limit: 100,
     order: 'asc',
   });
+
+  const storeEndTime = Date.now();
+  console.log(`[History Server] store.getMessages 结束时间: ${new Date(storeEndTime).toISOString()}`);
+  console.log(`[History Server] store.getMessages 耗时: ${storeEndTime - storeStartTime}ms (返回 ${history.length} 条记录)`);
 
   // Single-pass: filter SDK intermediate items + group by run_id
   const messages: FrontendMessage[] = [];
@@ -122,6 +136,10 @@ export async function onRequest(context: any) {
     if (group.user) messages.push(group.user);
     if (group.assistant) messages.push(group.assistant);
   }
+
+  const requestEndTime = Date.now();
+  console.log(`[History Server] 请求结束时间: ${new Date(requestEndTime).toISOString()}`);
+  console.log(`[History Server] 总耗时: ${requestEndTime - requestStartTime}ms (返回 ${messages.length} 条消息)`);
 
   return new Response(
     JSON.stringify({ conversation_id: conversationId, messages }),
