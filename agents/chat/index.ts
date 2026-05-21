@@ -14,75 +14,12 @@
  *   context.runId           — current run ID
  */
 
-import { run, Agent, tool, type Session } from '@openai/agents';
-import { z } from 'zod';
+import { run, Agent, type Session } from '@openai/agents';
 import { createLlmModel } from '../_model';
 import { createLogger } from '../_logger';
-
-// ========== Config ==========
-const HEARTBEAT_INTERVAL_MS = 15_000; // Heartbeat interval to keep connection alive
+import { createTools } from '../_tools';
 
 const logger = createLogger('chat');
-
-// ========== Tool 1: Get Weather ==========
-const getWeather = tool({
-  name: 'get_weather',
-  description: 'Get the current weather for a specified city.',
-  parameters: z.object({
-    city: z.string().describe('The city to get weather for'),
-  }),
-  execute: async ({ city }) => {
-    console.log('[debug] get_weather called');
-    return `${city}: 晴天, 18-25°C, 微风`;
-  },
-});
-
-// ========== Tool 2: Get Clothing Advice ==========
-const getClothingAdvice = tool({
-  name: 'get_clothing_advice',
-  description: 'Give clothing advice based on weather conditions.',
-  parameters: z.object({
-    weather: z.string().describe('The weather description'),
-  }),
-  execute: async ({ weather: _weather }) => {
-    console.log('[debug] get_clothing_advice called');
-    return '建议穿轻薄长袖外套，搭配休闲裤和运动鞋，适合外出活动。';
-  },
-});
-
-// ========== Tool 3: Translate Text ==========
-const translateText = tool({
-  name: 'translate_text',
-  description: 'Translate text to the specified language.',
-  parameters: z.object({
-    text: z.string().describe('The text to translate'),
-    target_language: z.string().describe('Target language code, e.g. en, ja, fr'),
-  }),
-  execute: async ({ text, target_language }) => {
-    console.log('[debug] translate_text called');
-    const translations: Record<string, string> = {
-      en: 'Hello, welcome to Beijing!',
-      ja: 'こんにちは、北京へようこそ！',
-      fr: 'Bonjour, bienvenue à Pékin!',
-    };
-    return translations[target_language] ?? `[Translated to ${target_language}]: ${text}`;
-  },
-});
-
-// ========== Tool 4: Text Statistics ==========
-const textStatistics = tool({
-  name: 'text_statistics',
-  description: 'Analyze text and return statistics like character count and word count.',
-  parameters: z.object({
-    text: z.string().describe('The text to analyze'),
-  }),
-  execute: async ({ text }) => {
-    console.log('[debug] text_statistics called');
-    const charCount = text.length;
-    const wordCount = text.trim().split(/\s+/).filter(Boolean).length;
-    return `字符数: ${charCount}, 词数: ${wordCount}`;
-  },
-});
 
 // ========== Agent ==========
 type RuntimeEnv = Record<string, string | undefined>;
@@ -91,12 +28,14 @@ function createAgent(env: RuntimeEnv) {
   return new Agent({
     name: 'Assistant',
     instructions: 'You are a helpful assistant. Use the available tools to answer questions.',
-    tools: [getWeather, getClothingAdvice, translateText, textStatistics],
+    tools: createTools(),
     model: createLlmModel(env),
   });
 }
 
 // ========== SSE Helper ==========
+const encoder = new TextEncoder();
+
 function sseFrame(event: string, data: Record<string, unknown>): string {
   return `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
 }
@@ -179,21 +118,10 @@ export async function onRequest(context: any) {
     : undefined;
 
   const agent = createAgent(context.env ?? {});
-  const encoder = new TextEncoder();
-  let heartbeatTimer: ReturnType<typeof setInterval> | null = null;
   let stopped = false;
 
   const stream = new ReadableStream({
     async start(controller) {
-      // Heartbeat: send ping periodically to keep connection alive
-      heartbeatTimer = setInterval(() => {
-        if (!signal?.aborted) {
-          const ts = Date.now();
-          logger.log(`[heartbeat] ping ${ts}`);
-          controller.enqueue(encoder.encode(sseFrame('ping', { ts })));
-        }
-      }, HEARTBEAT_INTERVAL_MS);
-
       try {
         const gen = eventStream(agent, message, signal, session);
         let next = await gen.next();
@@ -217,8 +145,6 @@ export async function onRequest(context: any) {
           );
         }
       } finally {
-        if (heartbeatTimer) clearInterval(heartbeatTimer);
-
         // Send done frame
         controller.enqueue(encoder.encode(sseFrame('done', { stopped })));
         controller.close();
@@ -226,7 +152,6 @@ export async function onRequest(context: any) {
     },
     cancel() {
       // Triggered when client disconnects
-      if (heartbeatTimer) clearInterval(heartbeatTimer);
       logger.log('[stream] client disconnected');
     },
   });
