@@ -16,10 +16,14 @@ const Va  = token(styles.va);
 interface LineProps { n: number; children?: React.ReactNode }
 const L = ({ n, children }: LineProps) => (
   <div className={styles.line}>
-    <span className={styles.ln}>{String(n).padStart(2, '\u00a0')}</span>
-    <span className={styles.lc}>{children ?? '\u00a0'}</span>
+    <span className={styles.ln}>{String(n).padStart(2, ' ')}</span>
+    <span className={styles.lc}>{children ?? ' '}</span>
   </div>
 );
+
+/* Indentation shorthand */
+const I = () => <span className={styles.indent} />;
+const I2 = () => <><span className={styles.indent} /><span className={styles.indent} /></>;
 
 export default function CodeViewer() {
   return (
@@ -39,174 +43,210 @@ export default function CodeViewer() {
         <div className={styles.scanline} aria-hidden />
 
         <div className={styles.code}>
+          {/* ── Imports ── */}
           <L n={1}>
-            <Kw t="import " /><Op t="{ " /><Ty t="Agent" /><Op t=", " /><Fn t="tool" /><Op t=" } " />
+            <Kw t="import " /><Op t="{ " /><Ty t="Agent" /><Op t=", " /><Fn t="run" /><Op t=", " /><Fn t="tool" /><Op t=" } " />
             <Kw t="from " /><Str t="'@openai/agents'" /><Op t=";" />
           </L>
           <L n={2}>
             <Kw t="import " /><Op t="{ " /><Va t="z" /><Op t=" } " />
             <Kw t="from " /><Str t="'zod'" /><Op t=";" />
           </L>
-          <L n={3} />
-          <L n={4}><Cmt t="// ========== Tool 1: Get Weather ==========" /></L>
+          <L n={3}>
+            <Kw t="import " /><Op t="{ " /><Fn t="createLlmModel" /><Op t=" } " />
+            <Kw t="from " /><Str t="'./_model'" /><Op t=";" />
+          </L>
+          <L n={4} />
+
+          {/* ── Instructions constant ── */}
           <L n={5}>
-            <Kw t="const " /><Va t="getWeather" /><Op t=" = " /><Fn t="tool" /><Op t="({" />
+            <Kw t="const " /><Va t="INSTRUCTIONS" /><Op t=" = " /><Str t="`...`" /><Op t=";" />
           </L>
-          <L n={6}>
-            <span className={styles.indent} />
-            <Va t="name" /><Op t=": " /><Str t="'get_weather'" /><Op t="," />
-          </L>
+          <L n={6} />
+
+          {/* ── onRequest handler ── */}
           <L n={7}>
-            <span className={styles.indent} />
-            <Va t="description" /><Op t=": " /><Str t="'Get the current weather for a specified city.'" /><Op t="," />
+            <Kw t="export " /><Kw t="async " /><Kw t="function " /><Fn t="onRequest" />
+            <Op t="(" /><Va t="context" /><Op t=": " /><Ty t="any" /><Op t=") {" />
           </L>
           <L n={8}>
-            <span className={styles.indent} />
-            <Va t="parameters" /><Op t=": " /><Va t="z" /><Op t="." /><Fn t="object" /><Op t="({" />
+            <I /><Kw t="const " /><Va t="message" /><Op t=" = " />
+            <Va t="context" /><Op t="." /><Va t="request" /><Op t="." /><Va t="body" />
+            <Op t="?." /><Va t="message" /><Op t=" ?? " /><Str t="''" /><Op t=";" />
           </L>
           <L n={9}>
-            <span className={styles.indent} /><span className={styles.indent} />
-            <Va t="city" /><Op t=": " /><Va t="z" /><Op t="." /><Fn t="string" /><Op t="()." /><Fn t="describe" /><Op t="(" /><Str t="'The city to get weather for'" /><Op t=")," />
+            <I /><Kw t="const " /><Va t="conversationId" /><Op t=" = " />
+            <Va t="context" /><Op t="." /><Va t="conversation_id" /><Op t=";" />
           </L>
           <L n={10}>
-            <span className={styles.indent} />
-            <Op t="})," />
+            <I /><Kw t="const " /><Va t="store" /><Op t=" = " />
+            <Va t="context" /><Op t="." /><Va t="store" /><Op t=";" />
           </L>
-          <L n={11}>
-            <span className={styles.indent} />
-            <Va t="execute" /><Op t=": " /><Kw t="async " /><Op t="({ " /><Va t="city" /><Op t=" }) => { ... }," />
+          <L n={11} />
+
+          {/* ── Step 1: Store user message ── */}
+          <L n={12}>
+            <I /><Cmt t="// 1. EdgeOne Store：保存用户消息，供历史恢复" />
           </L>
-          <L n={12}><Op t="});" /></L>
-          <L n={13} />
-          <L n={14}><Cmt t="// ========== Tool 2: Get Clothing Advice ==========" /></L>
+          <L n={13}>
+            <I /><Kw t="await " /><Va t="store" /><Op t="?." /><Fn t="appendMessage" /><Op t="?.({" />
+          </L>
+          <L n={14}>
+            <I2 /><Va t="conversationId" /><Op t="," />
+          </L>
           <L n={15}>
-            <Kw t="const " /><Va t="getClothingAdvice" /><Op t=" = " /><Fn t="tool" /><Op t="({" />
+            <I2 /><Va t="role" /><Op t=": " /><Str t="'user'" /><Op t="," />
           </L>
           <L n={16}>
-            <span className={styles.indent} />
-            <Va t="name" /><Op t=": " /><Str t="'get_clothing_advice'" /><Op t="," />
+            <I2 /><Va t="content" /><Op t=": " /><Va t="message" /><Op t="," />
           </L>
           <L n={17}>
-            <span className={styles.indent} />
-            <Va t="description" /><Op t=": " /><Str t="'Give clothing advice based on weather.'" /><Op t="," />
+            <I /><Op t="});" />
           </L>
-          <L n={18}>
-            <span className={styles.indent} />
-            <Va t="parameters" /><Op t=": " /><Va t="z" /><Op t="." /><Fn t="object" /><Op t="({" />
-          </L>
+          <L n={18} />
+
+          {/* ── Step 2: Inject session memory ── */}
           <L n={19}>
-            <span className={styles.indent} /><span className={styles.indent} />
-            <Va t="weather" /><Op t=": " /><Va t="z" /><Op t="." /><Fn t="string" /><Op t="()." /><Fn t="describe" /><Op t="(" /><Str t="'The weather description'" /><Op t=")," />
+            <I /><Cmt t="// 2. EdgeOne Store：注入 OpenAI Agents SDK 会话记忆" />
           </L>
           <L n={20}>
-            <span className={styles.indent} />
-            <Op t="})," />
+            <I /><Kw t="const " /><Va t="session" /><Op t=" = " />
+            <Va t="store" /><Op t="?." /><Fn t="openaiSession" /><Op t="?.(" /><Va t="conversationId" /><Op t=");" />
           </L>
-          <L n={21}>
-            <span className={styles.indent} />
-            <Va t="execute" /><Op t=": " /><Kw t="async " /><Op t="({ " /><Va t="weather" /><Op t=" }) => { ... }," />
+          <L n={21} />
+
+          {/* ── Step 3: Define tools ── */}
+          <L n={22}>
+            <I /><Cmt t="// 3. 使用当前项目定义的 Agent tools" />
           </L>
-          <L n={22}><Op t="});" /></L>
-          <L n={23} />
-          <L n={24}><Cmt t="// ========== Tool 3: Translate Text ==========" /></L>
+          <L n={23}>
+            <I /><Kw t="const " /><Va t="getWeather" /><Op t=" = " /><Fn t="tool" /><Op t="({" />
+          </L>
+          <L n={24}>
+            <I2 /><Va t="name" /><Op t=": " /><Str t="'get_weather'" /><Op t="," />
+          </L>
           <L n={25}>
-            <Kw t="const " /><Va t="translateText" /><Op t=" = " /><Fn t="tool" /><Op t="({" />
+            <I2 /><Va t="description" /><Op t=": " /><Str t="'Get the current weather...'" /><Op t="," />
           </L>
           <L n={26}>
-            <span className={styles.indent} />
-            <Va t="name" /><Op t=": " /><Str t="'translate_text'" /><Op t="," />
+            <I2 /><Va t="parameters" /><Op t=": " /><Va t="z" /><Op t="." /><Fn t="object" /><Op t="({" />
           </L>
           <L n={27}>
-            <span className={styles.indent} />
-            <Va t="description" /><Op t=": " /><Str t="'Translate text to the specified language.'" /><Op t="," />
+            <I2 /><I /><Va t="city" /><Op t=": " /><Va t="z" /><Op t="." /><Fn t="string" /><Op t="()." />
+            <Fn t="describe" /><Op t="(" /><Str t="'city'" /><Op t=")," />
           </L>
           <L n={28}>
-            <span className={styles.indent} />
-            <Va t="parameters" /><Op t=": " /><Va t="z" /><Op t="." /><Fn t="object" /><Op t="({" />
+            <I2 /><Op t="})," />
           </L>
           <L n={29}>
-            <span className={styles.indent} /><span className={styles.indent} />
-            <Va t="text" /><Op t=": " /><Va t="z" /><Op t="." /><Fn t="string" /><Op t="()." /><Fn t="describe" /><Op t="(" /><Str t="'The text to translate'" /><Op t=")," />
+            <I2 /><Va t="execute" /><Op t=": " /><Kw t="async " /><Op t="({ " /><Va t="city" /><Op t=" }) => { ... }," />
           </L>
           <L n={30}>
-            <span className={styles.indent} /><span className={styles.indent} />
-            <Va t="target_language" /><Op t=": " /><Va t="z" /><Op t="." /><Fn t="string" /><Op t="()." /><Fn t="describe" /><Op t="(" /><Str t="'Target language code'" /><Op t=")," />
+            <I /><Op t="});" />
           </L>
-          <L n={31}>
-            <span className={styles.indent} />
-            <Op t="})," />
-          </L>
+          <L n={31} />
           <L n={32}>
-            <span className={styles.indent} />
-            <Va t="execute" /><Op t=": " /><Kw t="async " /><Op t="({ " /><Va t="text" /><Op t=", " /><Va t="target_language" /><Op t=" }) => { ... }," />
+            <I /><Kw t="const " /><Va t="tools" /><Op t=" = [" />
           </L>
-          <L n={33}><Op t="});" /></L>
-          <L n={34} />
-          <L n={35}><Cmt t="// ========== Tool 4: Text Statistics ==========" /></L>
-          <L n={36}>
-            <Kw t="const " /><Va t="textStatistics" /><Op t=" = " /><Fn t="tool" /><Op t="({" />
+          <L n={33}>
+            <I2 /><Va t="getWeather" /><Op t="," />
           </L>
+          <L n={34}>
+            <I2 /><Cmt t="// More tools..." />
+          </L>
+          <L n={35}>
+            <I /><Op t="];" />
+          </L>
+          <L n={36} />
+
+          {/* ── Step 4: Create Agent ── */}
           <L n={37}>
-            <span className={styles.indent} />
-            <Va t="name" /><Op t=": " /><Str t="'text_statistics'" /><Op t="," />
+            <I /><Cmt t="// 4. 创建 OpenAI Agent" />
           </L>
           <L n={38}>
-            <span className={styles.indent} />
-            <Va t="description" /><Op t=": " /><Str t="'Analyze text and return statistics.'" /><Op t="," />
+            <I /><Kw t="const " /><Va t="agent" /><Op t=" = " /><Kw t="new " /><Ty t="Agent" /><Op t="({" />
           </L>
           <L n={39}>
-            <span className={styles.indent} />
-            <Va t="parameters" /><Op t=": " /><Va t="z" /><Op t="." /><Fn t="object" /><Op t="({" />
+            <I2 /><Va t="name" /><Op t=": " /><Str t="'EdgeOne Assistant'" /><Op t="," />
           </L>
           <L n={40}>
-            <span className={styles.indent} /><span className={styles.indent} />
-            <Va t="text" /><Op t=": " /><Va t="z" /><Op t="." /><Fn t="string" /><Op t="()." /><Fn t="describe" /><Op t="(" /><Str t="'The text to analyze'" /><Op t=")," />
+            <I2 /><Va t="instructions" /><Op t=": " /><Va t="INSTRUCTIONS" /><Op t="," />
           </L>
           <L n={41}>
-            <span className={styles.indent} />
-            <Op t="})," />
+            <I2 /><Va t="model" /><Op t=": " /><Fn t="createLlmModel" /><Op t="(" /><Va t="context" /><Op t="." /><Va t="env" /><Op t=")," />
           </L>
           <L n={42}>
-            <span className={styles.indent} />
-            <Va t="execute" /><Op t=": " /><Kw t="async " /><Op t="({ " /><Va t="text" /><Op t=" }) => { ... }," />
+            <I2 /><Va t="tools" /><Op t="," />
           </L>
-          <L n={43}><Op t="});" /></L>
+          <L n={43}>
+            <I /><Op t="});" />
+          </L>
           <L n={44} />
-          <L n={45}><Cmt t="// ========== Agent ==========" /></L>
+
+          {/* ── Step 5: Run Agent ── */}
+          <L n={45}>
+            <I /><Cmt t="// 5. 启动 Agent，并注入 Store Session" />
+          </L>
           <L n={46}>
-            <Kw t="const " /><Va t="agent" /><Op t=" = " /><Kw t="new " /><Ty t="Agent" /><Op t="({" />
+            <I /><Kw t="const " /><Va t="result" /><Op t=" = " /><Kw t="await " /><Fn t="run" /><Op t="(" />
+            <Va t="agent" /><Op t=", " /><Va t="message" /><Op t=", {" />
           </L>
           <L n={47}>
-            <span className={styles.indent} />
-            <Va t="name" /><Op t=": " /><Str t="'Assistant'" /><Op t="," />
+            <I2 /><Va t="session" /><Op t="," />
           </L>
           <L n={48}>
-            <span className={styles.indent} />
-            <Va t="instructions" /><Op t=": " />
-            <Str t="'You are a helpful assistant. Use the available tools to answer questions.'" />
-            <Op t="," />
+            <I2 /><Va t="stream" /><Op t=": " /><Va t="true" /><Op t="," />
           </L>
           <L n={49}>
-            <span className={styles.indent} />
-            <Va t="tools" /><Op t=": [" />
-            <Va t="getWeather" /><Op t=", " />
-            <Va t="getClothingAdvice" /><Op t=", " />
-            <Va t="translateText" /><Op t=", " />
-            <Va t="textStatistics" />
-            <Op t="]," />
+            <I2 /><Va t="signal" /><Op t=": " /><Va t="context" /><Op t="." /><Va t="request" /><Op t="." /><Va t="signal" /><Op t="," />
           </L>
           <L n={50}>
-            <span className={styles.indent} />
-            <Va t="model" /><Op t=": " /><Fn t="createLlmModel" /><Op t="(env)," />
+            <I /><Op t="});" />
           </L>
-          <L n={51}><Op t="});" /></L>
+          <L n={51} />
+
+          {/* ── Collect assistant text ── */}
+          <L n={52}>
+            <I /><Cmt t="// 省略 SSE、text_delta、tool_called 等流式细节" />
+          </L>
+          <L n={53}>
+            <I /><Kw t="const " /><Va t="assistantText" /><Op t=" = " /><Kw t="await " />
+            <Fn t="collectAssistantText" /><Op t="(" /><Va t="result" /><Op t=");" />
+          </L>
+          <L n={54} />
+
+          {/* ── Step 6: Store assistant message ── */}
+          <L n={55}>
+            <I /><Cmt t="// 6. EdgeOne Store：保存助手回复，供 /history 恢复" />
+          </L>
+          <L n={56}>
+            <I /><Kw t="await " /><Va t="store" /><Op t="?." /><Fn t="appendMessage" /><Op t="?.({" />
+          </L>
+          <L n={57}>
+            <I2 /><Va t="conversationId" /><Op t="," />
+          </L>
+          <L n={58}>
+            <I2 /><Va t="role" /><Op t=": " /><Str t="'assistant'" /><Op t="," />
+          </L>
+          <L n={59}>
+            <I2 /><Va t="content" /><Op t=": " /><Va t="assistantText" /><Op t="," />
+          </L>
+          <L n={60}>
+            <I /><Op t="});" />
+          </L>
+          <L n={61} />
+          <L n={62}>
+            <I /><Kw t="return " /><Ty t="Response" /><Op t="." /><Fn t="json" />
+            <Op t="({ " /><Va t="answer" /><Op t=": " /><Va t="assistantText" /><Op t=" });" />
+          </L>
+          <L n={63}><Op t="}" /></L>
         </div>
       </div>
 
       {/* ── Footer tag ── */}
       <div className={styles.footer}>
         <span className={styles.footerDot} />
-        <span>OpenAI Agents SDK · TypeScript</span>
+        <span>OpenAI Agents SDK · EdgeOne Functions</span>
       </div>
     </div>
   );
